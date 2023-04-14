@@ -1,5 +1,7 @@
 import { GetServerSideProps, InferGetServerSidePropsType } from "next"
-import { getSession } from "next-auth/react"
+import { Session, getServerSession } from "next-auth"
+import { getSession, useSession } from "next-auth/react"
+import { authOptions } from "../api/auth/[...nextauth]"
 
 type Post = {
     id: number, 
@@ -8,6 +10,9 @@ type Post = {
 }
 
 export default function Blog(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
+
+    // if(status === 'loading') return <div>Loading...</div>
+
     return <div>
         <div>{props.id}</div>
         <div>{props.title}</div>
@@ -17,7 +22,8 @@ export default function Blog(props: InferGetServerSidePropsType<typeof getServer
 
 export const getServerSideProps: GetServerSideProps<Post, { blogId: string }> = async(context) => {
 
-    const session = await getSession(context) //accesses request
+    const session = await getServerSession(context.req, context.res, authOptions) //accesses request
+    console.log(session)
 
     if(session)
     {
@@ -29,7 +35,7 @@ export const getServerSideProps: GetServerSideProps<Post, { blogId: string }> = 
             props: {
                 id: parseInt(id as string),
                 title: post.title,
-                body: post.body
+                body: post.body,
             }
         }
     }
