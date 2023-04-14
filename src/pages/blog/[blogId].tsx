@@ -6,7 +6,8 @@ import { authOptions } from "../api/auth/[...nextauth]"
 type Post = {
     id: number, 
     title: string,
-    body: string
+    body: string,
+    session?: Session
 }
 
 export default function Blog(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
@@ -22,12 +23,13 @@ export default function Blog(props: InferGetServerSidePropsType<typeof getServer
 
 export const getServerSideProps: GetServerSideProps<Post, { blogId: string }> = async(context) => {
 
-    const session = await getServerSession(context.req, context.res, authOptions) //accesses request
+    const session = await getServerSession(context.req, context.res, authOptions)
+    //accesses request and response objects on the server
+    //needs NEXTAUTH_SECRET set
     console.log(session)
-
+    const id = context.params?.blogId
     if(session)
     {
-        const id = context.params?.blogId
         const data = await fetch(`https://jsonplaceholder.typicode.com/posts/${id}`)
         const post: Post = await data.json()
     
@@ -40,10 +42,9 @@ export const getServerSideProps: GetServerSideProps<Post, { blogId: string }> = 
         }
     }
     return {
-        props: {
-            id: 0,
-            title: 'Free post',
-            body: 'This is a free post'
+        redirect: {
+            destination: `/api/auth/signin?callbackUrl=http://localhost:3000/blog/${id}`,
+            permanent: false
         }
     }
 }
