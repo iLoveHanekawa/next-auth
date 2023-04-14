@@ -7,8 +7,6 @@ export default function NavBar() {
     
     const { data: session, status } = useSession()
 
-    console.log
-
     return <div className = {`py-6 px-3 gap-5 flex items-start bg-blue-400 text-white ${nunito.className}`}>
         <Link href = {'/'}>Home</Link>
         <Link href = {'/dashboard'}>Dashboard</Link>
